@@ -11,5 +11,7 @@ namespace Domain.Interfaces.InterfacesServices
     public interface IServiceHoliday
     {
         Task<bool> Set(List<ViewModelHoliday> model);
+        Task<List<ViewModelHoliday>> Get();
+        Task Del(int id);
     }
 }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,10 +31,6 @@ namespace Infrastructure.Repository
                 {
                     await data.Holiday.AddAsync(new Holiday
                     {
-                        //Email = email,
-                        //PasswordHash = password,
-                        //Age = Age,
-                        //Phone = phone
                     });
 
                     await data.SaveChangesAsync();
@@ -46,6 +43,24 @@ namespace Infrastructure.Repository
             }
 
             return true;
+        }
+
+        public async Task<List<VariableDate>> Get(int hoidayId)
+        {
+            try
+            {
+                using (var data = new Context(_optionsbuilder))
+                {
+                    var result = await data.VariableDate.Where(x => x.FeriadoId == hoidayId).ToListAsync();
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

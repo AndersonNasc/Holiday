@@ -24,5 +24,15 @@ namespace Application.Application
         {
             return await _IHoliday.Set(model);
         }
+
+        public async Task<List<ViewModelHoliday>> Get()
+        {
+            return await _IHoliday.Get();
+        }
+
+        public async Task Del(int id)
+        {
+            await _IHoliday.Del(id);
+        }
     }
 }

@@ -23,14 +23,13 @@ namespace WebAPI
         }
 
         public IConfiguration Configuration { get; }
-                
+
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddDbContext<Context>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             // INTERFACE E REPOSITORIO
-            services.AddSingleton(typeof(IGenerics<>), typeof(RepositoryGenerecs<>));   
+            services.AddSingleton(typeof(IGenerics<>), typeof(RepositoryGenerecs<>));
             services.AddSingleton<IHoliday, RepositoryHoliday>();
             services.AddSingleton<IVariableDate, RepositoryVariableDate>();
 
@@ -40,12 +39,23 @@ namespace WebAPI
             // INTERFACE APLICAÇÃO
             services.AddSingleton<IApplicationHoliday, ApplicationHoliday>();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    builder.WithOrigins("http://localhost:4200")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                });
+            });
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPI", Version = "v1" });
             });
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -61,10 +71,13 @@ namespace WebAPI
 
             app.UseAuthorization();
 
+            app.UseCors("AllowSpecificOrigin");
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
         }
     }
 }

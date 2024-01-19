@@ -4,6 +4,7 @@ using Entity.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using ViewModel.Holiday;
@@ -65,6 +66,56 @@ namespace Domain.Services
             }
 
             return true;            
+        }
+
+        public async Task<List<ViewModelHoliday>> Get()
+        {
+            var result = new List<ViewModelHoliday>();
+            var lstHoliday = await _IHoliday.List();
+            var lstVariableDate = await _IVariableDate.List();
+
+            foreach (var holiday in lstHoliday)
+            {
+                var _variableDate = _IVariableDate.Get(holiday.Id);
+                ViewModelHoliday clsholiday = new ViewModelHoliday()
+                {
+                    Id = holiday.Id,
+                    Date = holiday.Date,
+                    Title = holiday.Title,
+                    Description = holiday.Description,
+                    Legislation = holiday.Legislation,
+                    Type = holiday.Type,
+                    StartTime = holiday.StartTime,
+                    EndTime = holiday.EndTime,
+                    VariableDates = await GetVarableDate(_variableDate.Result)
+                };
+                result.Add(clsholiday);
+            };
+
+            return result;
+        }
+
+        private async Task<Dictionary<string, string>> GetVarableDate(List<VariableDate> model)
+        {            
+            var dictionary = model.ToDictionary(_variableDate => _variableDate.Year.ToString(), _variableDate => _variableDate.Date);
+
+            return dictionary;
+        }
+
+        public async Task Del(int id)
+        {
+            try
+            {
+                var holidayToDelete = await _IHoliday.searchByID(id);
+                var variableDateDelete = await _IVariableDate.Get(holidayToDelete.Id);
+
+                await _IHoliday.del(holidayToDelete);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+           
         }
     }
 }

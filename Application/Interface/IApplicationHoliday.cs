@@ -11,5 +11,7 @@ namespace Application.Interface
     public interface IApplicationHoliday
     {
         Task<bool> Set(List<ViewModelHoliday> model);
+        Task<List<ViewModelHoliday>> Get();
+        Task Del(int id);
     }
 }

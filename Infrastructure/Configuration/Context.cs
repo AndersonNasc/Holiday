@@ -35,7 +35,7 @@ namespace Infrastructure.Configuration
         }
 
         public DbSet<Holiday> Holiday { get; set; }
-        public DbSet<Holiday> VariableDate { get; set; }
+        public DbSet<VariableDate> VariableDate { get; set; }
 
     }
 }

@@ -11,5 +11,6 @@ namespace Domain.Interfaces
 {
     public interface IVariableDate : IGenerics<VariableDate>
     {
+        Task<List<VariableDate>> Get(int hoidayId);
     }
 }

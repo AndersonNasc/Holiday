@@ -8,22 +8,24 @@ using System.Text;
 using Entity.Entity;
 using ViewModel.Holiday;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Cors;
 
 namespace WebAPI.Controllers
 {
     [Route("api/holiday")]
     [ApiController]
+    [AllowAnonymous]
     public class HolidayController : ControllerBase
     {
         private readonly IApplicationHoliday _IApplicationHoliday;
-        private readonly JsonSerializerSettings _jsonSerializerSettings;
+        private readonly IConfiguration _configuration;
 
-        public HolidayController(IApplicationHoliday IApplicationHoliday)
+        public HolidayController(IApplicationHoliday IApplicationHoliday, IConfiguration configuration)
         {
             _IApplicationHoliday = IApplicationHoliday;
+            _configuration = configuration;
         }
-
-        [AllowAnonymous]
+                
         [Produces("application/json")]
         [HttpGet]
         public async Task<IActionResult> GetAPIHoliday()
@@ -32,8 +34,8 @@ namespace WebAPI.Controllers
             {
                 try
                 {                    
-                    string apiUrl = "https://dadosbr.github.io/feriados/nacionais.json";
-                                        
+                    string apiUrl = _configuration["AppSettings:ApiUrl"];
+
                     HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
 
                     if (response.IsSuccessStatusCode)
@@ -56,6 +58,44 @@ namespace WebAPI.Controllers
                 catch (HttpRequestException ex)
                 {                    
                     return StatusCode(500, $"Erro na requisição à API externa: {ex.Message}");
+                }
+            }
+        }
+        
+        [Produces("application/json")]
+        [HttpGet("GetHoliday")]
+        public async Task<IActionResult> GetHoliday()
+        {
+            using (var httpClient = new HttpClient())
+            {
+                try
+                {
+                    var result = await _IApplicationHoliday.Get();
+
+                    return Ok(result);
+                }
+                catch (HttpRequestException ex)
+                {
+                    return StatusCode(500, ex.Message);
+                }
+            }
+        }
+
+        [Produces("application/json")]
+        [HttpGet("DelHoliday/{id}")]
+        public async Task<IActionResult> DelHoliday(int id)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                try
+                {
+                    await _IApplicationHoliday.Del(id);
+
+                    return Ok();
+                }
+                catch (HttpRequestException ex)
+                {
+                    return StatusCode(500, ex.Message);
                 }
             }
         }
